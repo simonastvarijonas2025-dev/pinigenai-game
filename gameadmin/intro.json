@@ -1,0 +1,57 @@
+{
+  "speak_intro_1": {
+    "contenttype": "sound",
+    "content": "lt_intro_001.mp3",
+    "subtitle": "Sveiki atvykę į Pinigėnus! Čia galėsite išmokti viską apie pinigus."
+  },
+  "speak_intro_2": {
+    "contenttype": "sound", 
+    "content": "lt_intro_002.mp3",
+    "subtitle": "Pinigai yra labai svarbūs mūsų gyvenime. Jie padeda mums pirkti daiktus, kuriuos norime ir poreikiai."
+  },
+  "speak_intro_3": {
+    "contenttype": "sound",
+    "content": "lt_intro_003.mp3", 
+    "subtitle": "Pirma, sukursime jūsų avatarą. Galėsite pasirinkti, kaip atrodote!"
+  },
+  "speak_intro_4": {
+    "contenttype": "sound",
+    "content": "lt_intro_004.mp3",
+    "subtitle": "Štai jūsų kambarys! Čia galėsite keisti drabužius ir žiūrėti savo daiktus."
+  },
+  "speak_intro_5": {
+    "contenttype": "sound",
+    "content": "lt_intro_005.mp3",
+    "subtitle": "Susipažinkite su Agota! Ji padės jums su pirkimais jos parduotuvėje."
+  },
+  "speak_intro_6": {
+    "contenttype": "sound", 
+    "content": "lt_intro_006.mp3",
+    "subtitle": "Laiko mašina nukels jus į skirtingus laikus ir vietas, kur galėsite išmokti apie pinigų istoriją."
+  },
+  "speak_intro_7": {
+    "contenttype": "sound",
+    "content": "lt_intro_007.mp3", 
+    "subtitle": "Pašto skyriuje galėsite sužinoti apie banko paslaugas ir kaip siųsti pinigus."
+  },
+  "speak_intro_8": {
+    "contenttype": "sound",
+    "content": "lt_intro_008.mp3",
+    "subtitle": "Obuolių žaidime galėsite užsidirbti pinigų greitai ir smagiai!"
+  },
+  "speak_intro_farm": {
+    "contenttype": "sound", 
+    "content": "lt_intro_009.mp3",
+    "subtitle": "Ūkyje ir uoste sužinosite, kaip prekybos keliais keliavo pinigai."
+  },
+  "speak_intro_10": {
+    "contenttype": "sound",
+    "content": "lt_intro_010.mp3", 
+    "subtitle": "Monopolio žaidime galėsite išmokti apie investavimą ir verslo valdymą."
+  },
+  "speak_intro_11": {
+    "contenttype": "sound",
+    "content": "lt_intro_011.mp3",
+    "subtitle": "Burtininkas atskleis jums pinigų paslaptis ir duos vertingų patarimų!"
+  }
+}

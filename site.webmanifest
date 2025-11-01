@@ -1,0 +1,16 @@
+{
+  "name": "Pinigėnai",
+  "short_name": "Pinigėnai",
+  "description": "Edukacinių pinigų žaidimas vaikams",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08548c",
+  "theme_color": "#08548c",
+  "icons": [
+    {
+      "src": "pinigenai/img/forside.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    }
+  ]
+}
