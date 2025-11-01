@@ -16,7 +16,6 @@
   <link rel="stylesheet" href="pinigenai/style.css">
   <link rel="stylesheet" href="pinigenai/gamestyle.css">
   <link rel="stylesheet" href="pinigenai/css/chat-system.css">
-  <link rel="stylesheet" href="pinigenai/css/statistics-panel.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="pinigenai/js/cookies.js"></script>
@@ -145,10 +144,23 @@ img.emoji {
             const users = JSON.parse(localStorage.getItem('pinigenai_users') || '{}');
             
             if (currentUser && users[currentUser]) {
-                // User is already logged in, go directly to game
+                // User is already logged in, restore their session
                 console.log('Found existing session for:', currentUser);
+                
+                // Ensure user data is complete
                 initializeChatAfterLogin(currentUser);
-                startGameIntro();
+                
+                // Skip intro and go directly to main game
+                $( window ).off("resize", frontpageResize);
+                
+                // Hide front page elements
+                $("#forside-content").hide();
+                
+                // Show game directly
+                setTimeout(() => {
+                    startIntro(); // This will load the main game
+                }, 500);
+                
                 addLogoutButton();
                 showNotification(`Sveiki sugrįžę, ${currentUser}!`, 'info');
                 return true;
@@ -246,8 +258,10 @@ img.emoji {
             if (users[username] && users[username].password === password) {
                 localStorage.setItem('pinigenai_current_user', username);
                 closeAuthModal();
+                initializeChatAfterLogin(username);
+                addLogoutButton();
                 startGameIntro();
-                showNotification(`Sveiki sugrįžę, ${username}!`);
+                showNotification(`Sveiki atvykę atgal, ${username}!`);
             } else {
                 showNotification("Neteisingas vartotojo vardas arba slaptažodis!", 'error');
             }
@@ -292,7 +306,6 @@ img.emoji {
             localStorage.setItem('pinigenai_current_user', username);
             
             closeAuthModal();
-            dispatchUserAction('register', { username: username });
             initializeChatAfterLogin(username);
             addLogoutButton();
             startGameIntro();
@@ -301,68 +314,68 @@ img.emoji {
 
         function startGameIntro() {
             $( window ).off("resize", frontpageResize);
-            startIntro();
+            
+            // Hide front page elements
+            $("#forside-content").hide();
+            
+            // Start the main game
+            setTimeout(() => {
+                startIntro();
+            }, 500);
         }
 
         function initializeChatAfterLogin(username) {
-            // Store user data for chat system
+            // Store comprehensive user data for the game
+            const users = JSON.parse(localStorage.getItem('pinigenai_users') || '{}');
             const userData = {
                 username: username,
+                email: users[username]?.email || '',
                 avatar: '👤',
                 level: 1,
                 coins: 0,
-                loginTime: new Date().toISOString()
+                gamesPlayed: 0,
+                achievements: [],
+                characterCreated: true, // Mark that character is created
+                gameProgress: {
+                    currentScene: 'universe', // Start in main game universe
+                    unlockedGames: ['farm', 'apple'], // Basic games unlocked
+                    completedTutorial: true
+                },
+                loginTime: new Date().toISOString(),
+                created: users[username]?.created || new Date().toISOString()
             };
             localStorage.setItem('pinigenai_user', JSON.stringify(userData));
+            
+            // Also store game state to skip character creation
+            localStorage.setItem('gameState', JSON.stringify({
+                characterCreated: true,
+                currentUser: username,
+                inGame: true
+            }));
             
             // Update existing chat system with new user
             if (window.chatSystem) {
                 window.chatSystem.loadUserSession();
             }
-            
-            // Send user joined event to statistics
-            window.dispatchEvent(new CustomEvent('pinigenai-game-event', {
-                detail: {
-                    type: 'userJoined',
-                    data: { username: username }
-                }
-            }));
-        }
-
-        // Helper function to dispatch game events
-        function dispatchGameEvent(type, data) {
-            window.dispatchEvent(new CustomEvent('pinigenai-game-event', {
-                detail: { type, data }
-            }));
-        }
-
-        // Helper function to dispatch user actions
-        function dispatchUserAction(type, data) {
-            window.dispatchEvent(new CustomEvent('pinigenai-user-action', {
-                detail: { type, data }
-            }));
-        }
-
-        // Logout functionality
+        }        // Logout functionality
         function logout() {
             const currentUser = localStorage.getItem('pinigenai_current_user');
             
             if (currentUser) {
-                // Dispatch user left event
-                dispatchUserAction('logout', { username: currentUser });
-                
                 // Clear current session
                 localStorage.removeItem('pinigenai_current_user');
                 localStorage.removeItem('pinigenai_user');
                 
-                // Destroy chat and stats
+                // Destroy chat system
                 if (window.chatSystem) {
                     window.chatSystem.destroy();
                     window.chatSystem = null;
                 }
-                if (window.statsPanel) {
-                    window.statsPanel.destroy();
-                    window.statsPanel = null;
+                
+                // Remove logout button
+                const logoutBtn = document.getElementById('logout-button');
+                if (logoutBtn) {
+                    logoutBtn.remove();
                 }
                 
                 // Reload page to start fresh
@@ -378,31 +391,34 @@ img.emoji {
             const currentUser = localStorage.getItem('pinigenai_current_user');
             if (currentUser) {
                 const logoutBtn = document.createElement('button');
-                logoutBtn.innerHTML = '🚪 Atsijungti';
+                logoutBtn.innerHTML = `🚪 Atsijungti (${currentUser})`;
+                logoutBtn.id = 'logout-button';
                 logoutBtn.style.cssText = `
                     position: fixed;
                     top: 20px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: #f44336;
+                    left: 20px;
+                    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
                     color: white;
                     border: none;
-                    padding: 8px 15px;
-                    border-radius: 20px;
+                    padding: 10px 16px;
+                    border-radius: 25px;
                     cursor: pointer;
-                    font-size: 12px;
+                    font-size: 13px;
                     font-weight: bold;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
                     z-index: 9998;
                     transition: all 0.3s ease;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
                 `;
                 logoutBtn.onmouseover = () => {
-                    logoutBtn.style.background = '#d32f2f';
-                    logoutBtn.style.transform = 'translateX(-50%) translateY(-2px)';
+                    logoutBtn.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+                    logoutBtn.style.transform = 'translateY(-2px)';
+                    logoutBtn.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.4)';
                 };
                 logoutBtn.onmouseout = () => {
-                    logoutBtn.style.background = '#f44336';
-                    logoutBtn.style.transform = 'translateX(-50%) translateY(0)';
+                    logoutBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                    logoutBtn.style.transform = 'translateY(0)';
+                    logoutBtn.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.3)';
                 };
                 logoutBtn.onclick = logout;
                 document.body.appendChild(logoutBtn);
@@ -427,7 +443,6 @@ img.emoji {
     <script src="pinigenai/js/game.js"></script>
     <script src="pinigenai/js/game-events.js"></script>
     <script src="pinigenai/js/chat-system.js"></script>
-    <script src="pinigenai/js/statistics-panel.js"></script>
     
 </body>
 

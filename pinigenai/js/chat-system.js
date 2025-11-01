@@ -17,7 +17,6 @@ class PinigenaiChatSystem {
         this.maxMessageLength = 100;
         this.chatContainer = null;
         this.isMinimized = false;
-        this.gameEventListeners = [];
         
         this.init();
     }
@@ -26,7 +25,6 @@ class PinigenaiChatSystem {
         this.createChatUI();
         this.setupEventListeners();
         this.loadUserSession();
-        this.setupGameEventListeners();
         
         // Simulate WebSocket connection (in real app would be actual WebSocket)
         this.simulateConnection();
@@ -183,7 +181,10 @@ class PinigenaiChatSystem {
         });
 
         this.updateOnlineUsers();
-        this.addSystemMessage(`${this.currentUser.username} prisijungė prie pokalbio! 👋`);
+        
+        if (this.currentUser.username !== 'Svečias') {
+            this.addSystemMessage(`${this.currentUser.username} prisijungė prie pokalbio! 👋`);
+        }
         
         // Simulate other users joining
         this.simulateOtherUsers();
@@ -408,50 +409,6 @@ class PinigenaiChatSystem {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
-    }
-
-    // Public methods for game integration
-    sendGameNotification(event, data) {
-        switch(event) {
-            case 'levelComplete':
-                this.addSystemMessage(`🎉 ${this.currentUser?.username} užbaigė ${data.gameName} lygį!`);
-                break;
-            case 'achievement':
-                this.addSystemMessage(`🏆 ${this.currentUser?.username} gavo pasiekimą: ${data.achievementName}!`);
-                break;
-            case 'coinsEarned':
-                this.addSystemMessage(`💰 ${this.currentUser?.username} uždirbo ${data.amount} monetų ${data.game ? 'žaidime ' + data.game : ''}!`);
-                break;
-            case 'gameStarted':
-                this.addSystemMessage(`🎮 ${this.currentUser?.username} pradėjo žaidimą "${data.gameName}"!`);
-                break;
-            case 'gameCompleted':
-                this.addSystemMessage(`✅ ${this.currentUser?.username} sėkmingai užbaigė žaidimą "${data.gameName}" už ${data.time || 'nežinomą'} laiką!`);
-                break;
-        }
-    }
-
-    setupGameEventListeners() {
-        // Listen for global game events
-        window.addEventListener('pinigenai-game-event', (event) => {
-            const { type, data } = event.detail;
-            this.sendGameNotification(type, data);
-        });
-
-        // Monitor localStorage changes for coin updates
-        let lastCoinCount = 0;
-        setInterval(() => {
-            if (this.currentUser) {
-                const userData = JSON.parse(localStorage.getItem('pinigenai_user') || '{}');
-                const currentCoins = userData.coins || 0;
-                
-                if (currentCoins > lastCoinCount && lastCoinCount > 0) {
-                    const earned = currentCoins - lastCoinCount;
-                    this.sendGameNotification('coinsEarned', { amount: earned });
-                }
-                lastCoinCount = currentCoins;
-            }
-        }, 2000);
     }
 
     destroy() {
