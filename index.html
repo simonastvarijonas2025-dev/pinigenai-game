@@ -15,7 +15,6 @@
   <link rel="stylesheet" href="pinigenai/css/normalize.css">
   <link rel="stylesheet" href="pinigenai/style.css">
   <link rel="stylesheet" href="pinigenai/gamestyle.css">
-  <link rel="stylesheet" href="pinigenai/css/chat-system.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="pinigenai/js/cookies.js"></script>
@@ -148,7 +147,7 @@ img.emoji {
                 console.log('Found existing session for:', currentUser);
                 
                 // Ensure user data is complete
-                initializeChatAfterLogin(currentUser);
+                initializeUserAfterLogin(currentUser);
                 
                 // Skip intro and go directly to main game
                 $( window ).off("resize", frontpageResize);
@@ -156,9 +155,9 @@ img.emoji {
                 // Hide front page elements
                 $("#forside-content").hide();
                 
-                // Show game directly
+                // Go directly to game without intro
                 setTimeout(() => {
-                    startIntro(); // This will load the main game
+                    skipIntro(); // Skip intro and go to main game
                 }, 500);
                 
                 addLogoutButton();
@@ -258,7 +257,7 @@ img.emoji {
             if (users[username] && users[username].password === password) {
                 localStorage.setItem('pinigenai_current_user', username);
                 closeAuthModal();
-                initializeChatAfterLogin(username);
+                initializeUserAfterLogin(username);
                 addLogoutButton();
                 startGameIntro();
                 showNotification(`Sveiki atvykę atgal, ${username}!`);
@@ -306,7 +305,7 @@ img.emoji {
             localStorage.setItem('pinigenai_current_user', username);
             
             closeAuthModal();
-            initializeChatAfterLogin(username);
+            initializeUserAfterLogin(username);
             addLogoutButton();
             startGameIntro();
             showNotification(`Sveiki atvykę į Pinigėnus, ${username}!`);
@@ -318,13 +317,22 @@ img.emoji {
             // Hide front page elements
             $("#forside-content").hide();
             
-            // Start the main game
-            setTimeout(() => {
-                startIntro();
-            }, 500);
+            // Check if user already has character data
+            const gameState = JSON.parse(localStorage.getItem('gameState') || '{}');
+            if (gameState.characterCreated) {
+                // Skip intro and go directly to game
+                setTimeout(() => {
+                    skipIntro(); // Go directly to main game
+                }, 500);
+            } else {
+                // Show intro for new users
+                setTimeout(() => {
+                    startIntro();
+                }, 500);
+            }
         }
 
-        function initializeChatAfterLogin(username) {
+        function initializeUserAfterLogin(username) {
             // Store comprehensive user data for the game
             const users = JSON.parse(localStorage.getItem('pinigenai_users') || '{}');
             const userData = {
@@ -352,11 +360,6 @@ img.emoji {
                 currentUser: username,
                 inGame: true
             }));
-            
-            // Update existing chat system with new user
-            if (window.chatSystem) {
-                window.chatSystem.loadUserSession();
-            }
         }        // Logout functionality
         function logout() {
             const currentUser = localStorage.getItem('pinigenai_current_user');
@@ -365,12 +368,7 @@ img.emoji {
                 // Clear current session
                 localStorage.removeItem('pinigenai_current_user');
                 localStorage.removeItem('pinigenai_user');
-                
-                // Destroy chat system
-                if (window.chatSystem) {
-                    window.chatSystem.destroy();
-                    window.chatSystem = null;
-                }
+                localStorage.removeItem('gameState');
                 
                 // Remove logout button
                 const logoutBtn = document.getElementById('logout-button');
@@ -442,7 +440,6 @@ img.emoji {
 	<script src="pinigenai/js/intro.js"></script>
     <script src="pinigenai/js/game.js"></script>
     <script src="pinigenai/js/game-events.js"></script>
-    <script src="pinigenai/js/chat-system.js"></script>
     
 </body>
 
