@@ -143,23 +143,13 @@ img.emoji {
             const users = JSON.parse(localStorage.getItem('pinigenai_users') || '{}');
             
             if (currentUser && users[currentUser]) {
-                // User is already logged in, restore their session
+                // User is already logged in, but show normal frontpage
                 console.log('Found existing session for:', currentUser);
                 
                 // Ensure user data is complete
                 initializeUserAfterLogin(currentUser);
                 
-                // Skip intro and go directly to main game
-                $( window ).off("resize", frontpageResize);
-                
-                // Hide front page elements
-                $("#forside-content").hide();
-                
-                // Go directly to game without intro
-                setTimeout(() => {
-                    skipIntro(); // Skip intro and go to main game
-                }, 500);
-                
+                // Show logout button and notification, but keep frontpage visible
                 addLogoutButton();
                 showNotification(`Sveiki sugrįžę, ${currentUser}!`, 'info');
                 return true;
@@ -317,19 +307,10 @@ img.emoji {
             // Hide front page elements
             $("#forside-content").hide();
             
-            // Check if user already has character data
-            const gameState = JSON.parse(localStorage.getItem('gameState') || '{}');
-            if (gameState.characterCreated) {
-                // Skip intro and go directly to game
-                setTimeout(() => {
-                    skipIntro(); // Go directly to main game
-                }, 500);
-            } else {
-                // Show intro for new users
-                setTimeout(() => {
-                    startIntro();
-                }, 500);
-            }
+            // Always show intro video first
+            setTimeout(() => {
+                startIntro();
+            }, 500);
         }
 
         function initializeUserAfterLogin(username) {
