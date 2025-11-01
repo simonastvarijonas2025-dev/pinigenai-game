@@ -1031,6 +1031,35 @@ function closeWishlist(){
 
 //START GAME FLOW
 function checkForUserSelect(){
+    // Check our authentication system first
+    const currentUser = localStorage.getItem('pinigenai_current_user');
+    const gameState = JSON.parse(localStorage.getItem('gameState') || '{}');
+    
+    if (currentUser && gameState.characterCreated) {
+        // User is logged in and has character created - skip character creation
+        console.log('User authenticated and character exists - going to main game');
+        
+        // Set up minimal user object for the game
+        user = {};
+        user.wallet = 0;
+        user.wishlist = [];
+        user.inventory = [];
+        user.inventoryPositions = [];
+        user.visitedApple = false;
+        user.visitedRoom = false;
+        user.visitedKaren = false;
+        user.visitedGate = false;
+        user.visitedPost = false;
+        user.visitedTime = false;
+        user.name = currentUser;
+        
+        // Go directly to main game
+        setupInterface();
+        initUniverse();
+        return;
+    }
+    
+    // Original logic for new users or cookies
     var skipUserSelect = true;
     if(allowCookies){
         getUserCookie();
