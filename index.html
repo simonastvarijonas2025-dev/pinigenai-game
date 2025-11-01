@@ -135,7 +135,26 @@ img.emoji {
             $(".play-btn").show();
 
             frontpageResize();
+            
+            // Check for existing user session on page load
+            checkExistingSession();
         });
+        
+        function checkExistingSession() {
+            const currentUser = localStorage.getItem('pinigenai_current_user');
+            const users = JSON.parse(localStorage.getItem('pinigenai_users') || '{}');
+            
+            if (currentUser && users[currentUser]) {
+                // User is already logged in, go directly to game
+                console.log('Found existing session for:', currentUser);
+                initializeChatAfterLogin(currentUser);
+                startGameIntro();
+                addLogoutButton();
+                showNotification(`Sveiki sugrįžę, ${currentUser}!`, 'info');
+                return true;
+            }
+            return false;
+        }
         
         function closeMaintenance(){
             $("#maintenance").hide();
@@ -173,7 +192,12 @@ img.emoji {
         }
 
         function gotoIntro(){
-            // Show login/register modal instead of going directly to intro
+            // First check if user is already logged in
+            if (checkExistingSession()) {
+                return; // User is already logged in, session restored
+            }
+            
+            // Show login/register modal for new users
             showAuthModal();
         }
 
@@ -270,6 +294,7 @@ img.emoji {
             closeAuthModal();
             dispatchUserAction('register', { username: username });
             initializeChatAfterLogin(username);
+            addLogoutButton();
             startGameIntro();
             showNotification(`Sveiki atvykę į Pinigėnus, ${username}!`);
         }
@@ -290,9 +315,9 @@ img.emoji {
             };
             localStorage.setItem('pinigenai_user', JSON.stringify(userData));
             
-            // Initialize chat system
-            if (typeof PinigenaiChatSystem !== 'undefined') {
-                window.chatSystem = new PinigenaiChatSystem();
+            // Update existing chat system with new user
+            if (window.chatSystem) {
+                window.chatSystem.loadUserSession();
             }
             
             // Send user joined event to statistics
@@ -316,6 +341,72 @@ img.emoji {
             window.dispatchEvent(new CustomEvent('pinigenai-user-action', {
                 detail: { type, data }
             }));
+        }
+
+        // Logout functionality
+        function logout() {
+            const currentUser = localStorage.getItem('pinigenai_current_user');
+            
+            if (currentUser) {
+                // Dispatch user left event
+                dispatchUserAction('logout', { username: currentUser });
+                
+                // Clear current session
+                localStorage.removeItem('pinigenai_current_user');
+                localStorage.removeItem('pinigenai_user');
+                
+                // Destroy chat and stats
+                if (window.chatSystem) {
+                    window.chatSystem.destroy();
+                    window.chatSystem = null;
+                }
+                if (window.statsPanel) {
+                    window.statsPanel.destroy();
+                    window.statsPanel = null;
+                }
+                
+                // Reload page to start fresh
+                showNotification(`Atsijungėte sėkmingai!`, 'info');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+        }
+
+        // Add logout button to page
+        function addLogoutButton() {
+            const currentUser = localStorage.getItem('pinigenai_current_user');
+            if (currentUser) {
+                const logoutBtn = document.createElement('button');
+                logoutBtn.innerHTML = '🚪 Atsijungti';
+                logoutBtn.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #f44336;
+                    color: white;
+                    border: none;
+                    padding: 8px 15px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    font-weight: bold;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    z-index: 9998;
+                    transition: all 0.3s ease;
+                `;
+                logoutBtn.onmouseover = () => {
+                    logoutBtn.style.background = '#d32f2f';
+                    logoutBtn.style.transform = 'translateX(-50%) translateY(-2px)';
+                };
+                logoutBtn.onmouseout = () => {
+                    logoutBtn.style.background = '#f44336';
+                    logoutBtn.style.transform = 'translateX(-50%) translateY(0)';
+                };
+                logoutBtn.onclick = logout;
+                document.body.appendChild(logoutBtn);
+            }
         }
 
     </script>

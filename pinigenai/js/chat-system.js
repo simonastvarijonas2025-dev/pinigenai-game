@@ -61,7 +61,8 @@ class PinigenaiChatSystem {
                         <div class="welcome-message">
                             <div class="system-message">
                                 🌟 Sveiki atvykę į Pinigėnai pokalbių kambarį!<br>
-                                📝 Būkite mandagūs ir padėkite kitiems mokytis!
+                                📝 Prisijunkite, kad galėtumėte rašyti žinutes!<br>
+                                💬 Stebėkite žaidimo naujienas ir kitų žaidėjų veiklą!
                             </div>
                         </div>
                     </div>
@@ -132,15 +133,41 @@ class PinigenaiChatSystem {
     }
 
     loadUserSession() {
-        const userData = localStorage.getItem('pinigenai_user');
-        if (userData) {
-            try {
-                this.currentUser = JSON.parse(userData);
-                this.isEnabled = true;
-                this.joinChat();
-            } catch (e) {
-                console.error('Error loading user session:', e);
+        const currentUser = localStorage.getItem('pinigenai_current_user');
+        const users = JSON.parse(localStorage.getItem('pinigenai_users') || '{}');
+        
+        if (currentUser && users[currentUser]) {
+            // Load user data from pinigenai_user or create from users data
+            let userData = JSON.parse(localStorage.getItem('pinigenai_user') || '{}');
+            
+            // If pinigenai_user doesn't exist or is incomplete, recreate it
+            if (!userData.username || userData.username !== currentUser) {
+                userData = {
+                    username: currentUser,
+                    email: users[currentUser].email || '',
+                    avatar: userData.avatar || '👤',
+                    level: userData.level || 1,
+                    coins: userData.coins || 0,
+                    gamesPlayed: userData.gamesPlayed || 0,
+                    achievements: userData.achievements || [],
+                    loginTime: new Date().toISOString(),
+                    created: users[currentUser].created || new Date().toISOString()
+                };
+                localStorage.setItem('pinigenai_user', JSON.stringify(userData));
             }
+            
+            this.currentUser = userData;
+            this.isEnabled = true;
+            this.joinChat();
+        } else {
+            // Show guest mode
+            this.currentUser = {
+                username: 'Svečias',
+                avatar: '👤',
+                level: 0
+            };
+            this.isEnabled = true;
+            this.joinChat();
         }
     }
 
@@ -217,7 +244,13 @@ class PinigenaiChatSystem {
         const input = document.getElementById('chat-input');
         const message = input.value.trim();
 
-        if (!message || !this.currentUser) return;
+        if (!message) return;
+        
+        if (!this.currentUser || this.currentUser.username === 'Svečias') {
+            this.addSystemMessage('⚠️ Prisijunkite, kad galėtumėte rašyti žinutes!');
+            input.value = '';
+            return;
+        }
 
         if (this.isMessageAppropriate(message)) {
             this.addMessage(this.currentUser.username, message, 'own');
@@ -231,7 +264,10 @@ class PinigenaiChatSystem {
     }
 
     sendQuickMessage(message) {
-        if (!this.currentUser) return;
+        if (!this.currentUser || this.currentUser.username === 'Svečias') {
+            this.addSystemMessage('⚠️ Prisijunkite, kad galėtumėte rašyti žinutes!');
+            return;
+        }
         
         this.addMessage(this.currentUser.username, message, 'own');
         this.broadcastMessage(this.currentUser.username, message);
@@ -425,12 +461,9 @@ class PinigenaiChatSystem {
     }
 }
 
-// Initialize chat system when page loads
+// Initialize chat system when page loads (always visible)
 document.addEventListener('DOMContentLoaded', () => {
-    // Only initialize if user is logged in
-    if (localStorage.getItem('pinigenai_user')) {
-        window.chatSystem = new PinigenaiChatSystem();
-    }
+    window.chatSystem = new PinigenaiChatSystem();
 });
 
 // Export for use in other modules

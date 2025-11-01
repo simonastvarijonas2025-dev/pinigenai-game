@@ -134,13 +134,27 @@ class PinigenaiStatsPanel {
         Object.values(users).forEach(user => {
             totalCoins += user.coins || 0;
         });
+        
+        // Also add coins from current user data
+        const currentUserData = JSON.parse(localStorage.getItem('pinigenai_user') || '{}');
+        if (currentUserData.coins) {
+            totalCoins += currentUserData.coins;
+        }
+        
         this.stats.totalCoins = totalCoins;
 
         // Load other stats from localStorage
         const gameStats = JSON.parse(localStorage.getItem('pinigenai_game_stats') || '{}');
         this.stats.gamesPlayed = gameStats.totalGames || 0;
-        this.stats.dailyActiveUsers = gameStats.dailyActive || 0;
-        this.stats.topPlayer = gameStats.topPlayer || 'Nėra';
+        this.stats.dailyActiveUsers = gameStats.dailyActive || (currentUser ? 1 : 0);
+        this.stats.topPlayer = gameStats.topPlayer || currentUser || 'Nėra';
+
+        // If user is returning, show welcome back activity
+        if (currentUser) {
+            setTimeout(() => {
+                this.addActivity(`🔄 ${currentUser} grįžo žaisti!`);
+            }, 1000);
+        }
 
         this.updateStatsDisplay();
     }

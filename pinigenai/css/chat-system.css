@@ -6,14 +6,14 @@
     right: 20px;
     width: 320px;
     height: 600px; /* Fixed height, always visible */
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     display: flex;
     flex-direction: column;
     font-family: 'Arial', sans-serif;
     z-index: 1000;
-    border: 2px solid #ffffff20;
+    border: 2px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
 }
@@ -29,13 +29,13 @@
 
 /* Header */
 .chat-header {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(30, 58, 138, 0.3);
     padding: 12px 15px;
     border-radius: 15px 15px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .chat-title {
@@ -94,8 +94,8 @@
 /* Online Users */
 .online-users {
     width: 100px;
-    background: rgba(0, 0, 0, 0.1);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(30, 58, 138, 0.2);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     flex-direction: column;
 }
@@ -251,9 +251,9 @@
 /* Input Area */
 .chat-input-area {
     padding: 10px;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(30, 58, 138, 0.2);
     border-radius: 0 0 15px 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .input-container {
