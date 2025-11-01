@@ -1955,6 +1955,9 @@ function initUniverse(){
 
     if(isMobile || isIPad){
         resizeBordersForMobile();
+    } else {
+        // For desktop, recalculate positions after gameContainer.x change
+        gameResizeEvent();
     }
 }
 
