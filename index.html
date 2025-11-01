@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="pinigenai/css/normalize.css">
   <link rel="stylesheet" href="pinigenai/style.css">
   <link rel="stylesheet" href="pinigenai/gamestyle.css">
+  <link rel="stylesheet" href="pinigenai/css/chat-system.css">
+  <link rel="stylesheet" href="pinigenai/css/statistics-panel.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="pinigenai/js/cookies.js"></script>
@@ -266,6 +268,8 @@ img.emoji {
             localStorage.setItem('pinigenai_current_user', username);
             
             closeAuthModal();
+            dispatchUserAction('register', { username: username });
+            initializeChatAfterLogin(username);
             startGameIntro();
             showNotification(`Sveiki atvykę į Pinigėnus, ${username}!`);
         }
@@ -273,6 +277,45 @@ img.emoji {
         function startGameIntro() {
             $( window ).off("resize", frontpageResize);
             startIntro();
+        }
+
+        function initializeChatAfterLogin(username) {
+            // Store user data for chat system
+            const userData = {
+                username: username,
+                avatar: '👤',
+                level: 1,
+                coins: 0,
+                loginTime: new Date().toISOString()
+            };
+            localStorage.setItem('pinigenai_user', JSON.stringify(userData));
+            
+            // Initialize chat system
+            if (typeof PinigenaiChatSystem !== 'undefined') {
+                window.chatSystem = new PinigenaiChatSystem();
+            }
+            
+            // Send user joined event to statistics
+            window.dispatchEvent(new CustomEvent('pinigenai-game-event', {
+                detail: {
+                    type: 'userJoined',
+                    data: { username: username }
+                }
+            }));
+        }
+
+        // Helper function to dispatch game events
+        function dispatchGameEvent(type, data) {
+            window.dispatchEvent(new CustomEvent('pinigenai-game-event', {
+                detail: { type, data }
+            }));
+        }
+
+        // Helper function to dispatch user actions
+        function dispatchUserAction(type, data) {
+            window.dispatchEvent(new CustomEvent('pinigenai-user-action', {
+                detail: { type, data }
+            }));
         }
 
     </script>
@@ -291,6 +334,9 @@ img.emoji {
     <script src="https://cdn.jsdelivr.net/npm/pixi-filters@2.6.1/dist/pixi-filters.js"></script>
 	<script src="pinigenai/js/intro.js"></script>
     <script src="pinigenai/js/game.js"></script>
+    <script src="pinigenai/js/game-events.js"></script>
+    <script src="pinigenai/js/chat-system.js"></script>
+    <script src="pinigenai/js/statistics-panel.js"></script>
     
 </body>
 
