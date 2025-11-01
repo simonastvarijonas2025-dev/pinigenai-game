@@ -250,10 +250,8 @@ function gameResizeEvent(){
         }
     }else{//is desktop
         gameContainer.x = (window.innerWidth-1024)/2;
-        gameContainer.y = (window.innerHeight-700)/2; // Center vertically
         
         gameBorder.x = sideBar.x = frontGround.x = gameContainer.x;
-        gameBorder.y = sideBar.y = frontGround.y = gameContainer.y;
         
         if(sideBar.children.length > 0){
             gameContainer.x += 50;
@@ -261,24 +259,17 @@ function gameResizeEvent(){
 
         maskLeft.clear();
         maskLeft.beginFill(0x08548c);
-        maskLeft.drawRect(0, 0, gameBorder.x, window.innerHeight);
+        maskLeft.drawRect(0, 0, gameBorder.x, gameBorder.height);
         app.stage.addChild(maskLeft);
         
         maskRight.clear();
         maskRight.beginFill(0x08548c);
-        maskRight.drawRect((gameBorder.x+gameBorder.width), 0, window.innerWidth-(gameBorder.x+gameBorder.width), window.innerHeight);
+        maskRight.drawRect((gameBorder.x+gameBorder.width), 0, gameBorder.x, gameBorder.height);
         app.stage.addChild(maskRight);
-
-        // Top mask
-        var maskTop = new PIXI.Graphics();
-        maskTop.clear();
-        maskTop.beginFill(0x08548c);
-        maskTop.drawRect(0, 0, window.innerWidth, gameBorder.y);
-        app.stage.addChild(maskTop);
 
         maskBottom.clear();
         maskBottom.beginFill(0x08548c);
-        maskBottom.drawRect(0, gameBorder.y + gameBorder.height, window.innerWidth, window.innerHeight - (gameBorder.y + gameBorder.height));
+        maskBottom.drawRect(0, gameBorder.height, window.innerWidth, (window.innerHeight-gameBorder.height));
         app.stage.addChild(maskBottom);
 
     }
@@ -1955,9 +1946,6 @@ function initUniverse(){
 
     if(isMobile || isIPad){
         resizeBordersForMobile();
-    } else {
-        // For desktop, recalculate positions after gameContainer.x change
-        gameResizeEvent();
     }
 }
 
